@@ -16,8 +16,3 @@ Simple GUI to Convert Youtube Video to MP3 Using pytube and ttkbootstrap
   - Edit   : \Youtube2Mp3\Lib\site-packages\ttkbootstrap\widgets.py", line 856
   - Change : img.resize((self._metersize, self._metersize), Image.CUBIC) 
   - To     : img.resize((self._metersize, self._metersize), **Image.BICUBIC**)
-
-# Fix for `AttributeError: module 'PIL.Image' has no attribute 'CUBIC'`
-  - Edit   : \Youtube2Mp3\Lib\site-packages\ttkbootstrap\widgets.py", line 856
-  - Change : img.resize((self._metersize, self._metersize), Image.CUBIC) 
-  - To     : img.resize((self._metersize, self._metersize), **Image.BICUBIC**)
