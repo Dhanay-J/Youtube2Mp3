@@ -75,7 +75,7 @@ root.geometry(f"{WIDTH}x{HEIGHT}")
 msg_label = ttk.Label(root, text="", padding=4)
 url_label = ttk.Label(root, text="URL", padding=4)
 url_entry = ttk.Entry(root)
-download_meter = ttk.Meter(root, textright=" %",metertype="semi", metersize=180, amountused=20, interactive=True, bootstyle="danger")
+download_meter = ttk.Meter(root, textright=" %",metertype="semi", metersize=180, amountused=0, bootstyle="danger")
 download_button = ttk.Button(root, text="Download", style="success", padding=4,command=worker)
 
 url_label.place(relx=0.02, rely=0.1, relwidth=0.2)
