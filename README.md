@@ -6,7 +6,7 @@ Simple GUI to Convert Youtube Video to MP3 Using pytube and ttkbootstrap
 - Installation
     - `git clone https://github.com/Dhanay-J/Youtube2Mp3.git`
     - `cd Youtube2Mp3`
-    - `python -mm venv .`
+    - `python -m venv .`
     - `.\Scripts\activate`
     - `pip install -r requirements.txt`
     - `python .\main.py`
