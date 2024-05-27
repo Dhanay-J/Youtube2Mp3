@@ -21,9 +21,13 @@ def set_download_meter(stream, chunk, bytes_remaining):
     total_size = stream.filesize
     bytes_downloaded = total_size - bytes_remaining
     pct_completed = int((bytes_downloaded / total_size) * 100)
+    for i in range(download_meter.amountusedvar.get(), pct_completed+1):
+        download_meter.configure(amountused=i)
     download_meter.configure(amountused=pct_completed)
 
 def set_download_meter_complete(stream, file_handle):
+    for i in range(download_meter.amountusedvar.get(), 101):
+        download_meter.configure(amountused=i)
     download_meter.configure(amountused=100)
 
     msg_label.configure(text=f"Download Completed : {stream.title}\nConverting to MP3...")
