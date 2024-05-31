@@ -121,7 +121,7 @@ class Download:
         
         notification.urgency = "low"   # 'low', 'normal' or 'critical'
         # notification.audio = "path/to/audio.wav" 
-        notification.icon = f"{root_folder}\\1.png"
+        # notification.icon = "path/to/icon.png"
 
 
         notification.send(block=False)  # block=False spawns a separate thread inorder not to block the main app thread
