@@ -1,4 +1,5 @@
 
+import sys
 import threading
 import time
 from tkinter import *
@@ -14,10 +15,26 @@ import functools
 notifypy.Notify._selected_notification_system = functools.partial(notifypy.Notify._selected_notification_system, override_windows_version_detection=True)
 
 root_folder = os.path.dirname(os.path.abspath(__file__))
+icon = ""
+notification_audio = "" 
+if sys.platform == "win32":
+    notification_audio = f"{root_folder}\\notifications\\notification.wav"
+    icon = f"{root_folder}\\icons\\icon.ico"
+else:
+    notification_audio = f"{root_folder}/notifications/notification.wav"
+    icon = f"{root_folder}/icons/icon.png"
 
 
 class Download:
     def __init__(self, url="") -> None:
+        
+        self.url = url
+        self.thread = None
+        self.download_window = None
+        self.msg_label = None
+        self.download_meter =None
+        self.restart = None
+
         WIDTH = 700
         HEIGHT = 500
         PATH = f"{os.environ.get('USERPROFILE')}\\Downloads\\Youtube2Mp3\\"
@@ -26,10 +43,13 @@ class Download:
             os.makedirs(PATH)
         os.chdir(PATH)
 
-
-        self.url = url
-        self.thread = None
         self.download_window = ttk.Toplevel()
+
+        if sys.platform == "win32":
+            self.download_window.iconbitmap(icon)
+        else:
+            self.download_window.iconphoto(True, PhotoImage(file=icon))
+        
         self.download_window.minsize(WIDTH, HEIGHT)
         
         self.download_window.title("Download")
@@ -43,8 +63,7 @@ class Download:
 
         self.restart = ttk.Button(self.download_window, text="Restart", style="success",command=self.download)
 
-        
-
+        self.download_window.withdraw()
 
     def set_download_meter(self, stream:Stream, chunk, bytes_remaining):
         total_size = stream.filesize
@@ -78,13 +97,17 @@ class Download:
 
     def download(self):
         
+        self.download_window.deiconify()
         self.download_meter.configure(amountused=0)
         self.restart.pack_forget()
 
         try:
             yt = YouTube(self.url, on_progress_callback=self.set_download_meter, on_complete_callback=self.set_download_meter_complete)
+            self.download_window.title(yt.title)
+            
             self.msg_label.configure(text=f"Downloading : {yt.title}")
             yt.streams.get_audio_only().download()
+        
         except Exception as e:
             self.download_meter.configure(amountused=0)
             e = str(e)
@@ -120,8 +143,8 @@ class Download:
         notification.message = message
         
         notification.urgency = "low"   # 'low', 'normal' or 'critical'
-        # notification.audio = "path/to/audio.wav" 
-        # notification.icon = "path/to/icon.png"
+        notification.audio = notification_audio
+        notification.icon = icon[:-3]+"png"
 
 
         notification.send(block=False)  # block=False spawns a separate thread inorder not to block the main app thread
