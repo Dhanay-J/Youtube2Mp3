@@ -12,6 +12,8 @@ build/
 develop-eggs/
 dist/
 downloads/
+linux_venv/
+win_env/
 eggs/
 .eggs/
 lib/
