@@ -14,7 +14,7 @@ dist/
 downloads/
 linux_venv/
 win_env/
-tkinter/
+tkinter.*
 eggs/
 .eggs/
 lib/
