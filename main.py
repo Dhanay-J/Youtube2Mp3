@@ -8,7 +8,7 @@ import os, time
 from pytube import Playlist, Stream, YouTube
 from concurrent.futures import ThreadPoolExecutor
 from moviepy.editor import AudioFileClip
-import notifypy, shutil
+import notifypy, shutil, functools
 
 WIDTH = 700
 HEIGHT = 200
@@ -22,16 +22,25 @@ icon = ""
 notification_audio = ""
 PATH = ""
 
+def resource_path(relative_path:str) ->str:
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 if sys.platform == "win32":
-    icon = f"{root_folder}\\icons\\icon.ico"
-    notification_audio = f"{root_folder}\\notifications\\notification.wav"
+    icon = f"icons\\icon.ico"
+    notification_audio = f"notifications\\notification.wav"
     PATH = f"{os.environ.get('USERPROFILE')}\\Downloads\\Youtube2Mp3\\"                                                                                                         
+    notifypy.Notify._selected_notification_system = functools.partial(notifypy.Notify._selected_notification_system, override_windows_version_detection=True)
 else:
     if shutil.which('aplay') is None:
         Messagebox.show_error("Install alsa-utils to play audio notifications in Linux", "Error")
+    icon = f"icons/icon.png"
+    notification_audio = f"notifications/notification.wav"
     PATH = f"{os.environ.get('HOME')}/Downloads/Youtube2Mp3/"                                                                                                           
-    notification_audio = f"{root_folder}/notifications/notification.wav"
-    icon = f"{root_folder}/icons/icon.png"
 
 if(not os.path.exists(PATH)):    
     os.makedirs(PATH)
@@ -46,11 +55,13 @@ class DownloadWindow(ttk.Toplevel):
         self.notifications = notifications
         self.popup = popup
 
+        os.chdir(root_folder)
         if sys.platform == "win32":
-            self.iconbitmap(icon)
+            self.iconbitmap(resource_path(icon))
         else:
-            self.iconphoto(True, PhotoImage(file=icon))
-        
+            self.iconphoto(True, PhotoImage(file=resource_path(icon)))
+        os.chdir(PATH)
+
         self.minsize(WIDTH, HEIGHT)
         
         self.geometry(f"{WIDTH}x{HEIGHT}")
@@ -145,18 +156,19 @@ class DownloadWindow(ttk.Toplevel):
             Cross-Platform: could be used on any OS.
             Linux: sudo apt-get install alsa-utils
         """
+        os.chdir(root_folder)
         notification = notifypy.Notify(enable_logging=False) # I like enabling logging :)
         notification.application_name = "Youtube2Mp3"
         notification.title = title
         notification.message = message
         
         notification.urgency = "low"   # 'low', 'normal' or 'critical'
-        notification.audio = notification_audio
-        notification.icon = icon[:-3]+"png"
+        notification.audio = resource_path(notification_audio)
+        notification.icon = resource_path(icon)[:-3]+"png"
 
 
         notification.send(block=False)  # block=False spawns a separate thread inorder not to block the main app thread
-
+        os.chdir(PATH)
 
     
 
@@ -164,11 +176,14 @@ class App(ttk.Window):
     def __init__(self, title="Youtube2MP3", themename="darkly", iconphoto='', size=None, position=None, minsize=None, maxsize=None, resizable=None, hdpi=True, scaling=None, transient=None, overrideredirect=False, alpha=1):
         super().__init__(title, themename, iconphoto, size, position, minsize, maxsize, resizable, hdpi, scaling, transient, overrideredirect, alpha)
 
+        os.chdir(root_folder)
         # root = ttk.Window(themename="darkly")
         if sys.platform == "win32":
-            self.iconbitmap(icon)
+            self.iconbitmap(resource_path(icon))
         else:
-            self.iconphoto(True, PhotoImage(file=icon))
+            self.iconphoto(True, PhotoImage(file=resource_path(icon)))
+        
+        os.chdir(PATH)
         self.title("Youtube2MP3")
         self.geometry(f"{WIDTH}x{HEIGHT}")
         self.minsize(WIDTH, HEIGHT)
@@ -186,8 +201,8 @@ class App(ttk.Window):
         self.is_multi_mode_var.set(0)
         self.is_multi_mode = ttk.Checkbutton(self, text="Multimode", padding=4, variable=self.is_multi_mode_var)
 
-        self.is_notify_var = ttk.IntVar()
-        self.is_notify_var.set(0)
+        self.is_notify_var = ttk.BooleanVar()
+        self.is_notify_var.set(False)
         self.is_notify_mode = ttk.Checkbutton(self, text="Notifications", padding=4, variable=self.is_notify_var)
 
         self.is_popup_var = ttk.IntVar()
